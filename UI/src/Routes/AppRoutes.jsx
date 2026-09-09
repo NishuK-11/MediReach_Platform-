@@ -29,6 +29,12 @@ import AddMedicine from '../features/pharmacy/AddMedicine'
 import PatientReport from '../features/Admin/PatientProfileAdmin'
 import PatientProfileAdmin from '../features/Admin/PatientProfileAdmin'
 import PatientProfileDoctor from '../features/doctor/PatientProfileDoctor'
+import PrescriptionOptions from '../features/doctor/PrescritionOptions'
+import PatientHistory from '../features/doctor/PatientHistory'
+import AllHospitals from '../common/AllHospitals'
+import SharedMedicalData from '../features/doctor/SharedMedicalData'
+import VideoCallPage from '../features/doctor/VideoCallPage'
+
 
 const AppRoutes = () => {
   return (
@@ -70,17 +76,25 @@ const AppRoutes = () => {
           <Route path='doctor/opd-schedule/:doctorId' element={<OpdSchedule />}/>
           <Route path='patients/:id' element={<PatientProfileAdmin />}/>
           <Route path='patient-report/:id' element={<PatientReport />}/>
+          <Route path='all-hospitals' element={<AllHospitals />}/>
+          
         </Route>
 
 
         <Route path='/doctor-dashboard' element={<ProtectedRoutes allowedRoles={[ROLE.doctor]}>
           <HospitalLayout />
         </ProtectedRoutes>}>
+          
           <Route index element={<DoctorDashboard />} />
           <Route path='appointments' element={<Appointment />} />
           <Route path='notifications' element={<NotificationSection />}/>
+          <Route path='doctor-dashboard/video-call' element={<VideoCallPage />} />
           <Route path='patients/:id' element={<PatientProfileDoctor />}/>
-        </Route>
+          <Route path='patients/:id/prescription' element={<PrescriptionOptions />}/>
+          <Route path='patients/:id/history' element={<PatientHistory />}/>
+          <Route path='patients/:id/shared-data' element={<SharedMedicalData />}/>
+          
+        </Route>  
 
         <Route path='/hospital-dashboard/profile' 
           element={

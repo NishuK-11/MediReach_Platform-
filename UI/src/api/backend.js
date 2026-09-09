@@ -22,61 +22,16 @@
 //   );
 // };
 
-// export const logout = ()=>{
-//   localStorage.removeItem("token");
-//   localStorage.removeItem("role");
-//   window.location.href = '/login';
-// }
-
-// export const getHospitalProfile = async()=>{
-//   const token = localStorage.getItem("token");
-//   return axios.get(`${API}/profile`,{
-//     headers:{
-//       Authorization:`Bearer ${token}`,
-//     },
-//   });
-// }
-
-// // export const getStats = async()=>{
-// //   const token = localStorage.getItem("token");
-// //   return axios.get(`${API}/statistics`,{
-// //     headers:{
-// //       Authorization:`Bearer ${token}`,
-// //     },
-// //   });
-// // }
-
-// export const DepartmentsDoctorsCount = async()=>{
-//   const token = localStorage.getItem("token");
-//   return axios.get(`${API}/departments/doctor-count`,{
-//     headers:{
-//       Authorization:`Bearer ${token}`,
-//     }
-//   })
-// }
-
-
-// export const addDepartment = async(data)=>{
-//   const token = localStorage.getItem("token");
-//   return axios.post(`${API}/departments`,data,{
-//     headers:{
-//       Authorization:`Bearer ${token}`,
-//     }
-//   })
-// } 
-
-// export const addDoctor = async(data)=>{
-//   const token = localStorage.getItem("token");
-//   return axios.post(`${API}/doctors/add-doctor`,data,{
-//     headers:{
-//       Authorization:`Bearer ${token}`,
-//     }
-//   })
-// } 
-
 
 
 import api from "./axiosInstance";
+
+import axios from "axios";
+
+// AI service alag hai — ismein apne backend ka token nahi jaana chahiye
+const aiApi = axios.create({
+  timeout: 60000, // Render free tier cold start me 50s tak so jaata hai
+});
 
 // ---------------- Platform ----------------
 
@@ -166,8 +121,8 @@ export const getConfirmedAppointments = ()=>
 export const startOPD = () => api.patch("/doctors/toggle-opd");
 
 // ⭐ id ko real param banao (backend ignore karta hai but URL structure follow karo)
-export const startConsultation = (id = "na") =>
-  api.patch(`/consultation/start-consultation/${id}`);
+export const startConsultation = () =>
+  api.patch(`/consultation/start-consultation`);
 
 export const stopConsultation = (id = "na") =>
   api.patch(`/consultation/stop-consultation/${id}`);
@@ -188,7 +143,7 @@ export const skipPatient = () =>
   api.patch(`/consultation/skip-patient`);
 
 export const getCurrentPatient = () =>
-  api.get(`/doctors/current-patient`); // apna actual route yahan confirm kar lena
+  api.get(`/consultation/current-patient`); // apna actual route yahan confirm kar lena
 
 
 export const addMedicine = (data) => {
@@ -212,5 +167,67 @@ export const addPatientReport = (formData) => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+  });
+};
+
+export const addPrescriptionImage = (formData) =>
+  api.post(
+    "/prescription/prescription-image-extract",
+    formData
+  );
+
+export const PrescriptionDescription = (data) =>
+  api.post(
+    "/prescription/prescription-description-extract",
+    data,
+    { headers: { "Content-Type": "application/json" } }
+  );
+
+export const ManualPrescription = (data) => {
+  return api.post(
+    "/prescription/create-prescription",
+    data
+  );
+};
+
+export const getPatientHistory = (patientId) => {
+  return api.get(`/doctors/patient-history/${patientId}`);
+};
+
+// AI-generated recap of the patient's record. Slow by nature (Gemini call on a
+// cache miss), so it carries its own timeout - axiosInstance sets none globally.
+export const getPatientMedicalSummary = (patientId) => {
+  return api.get(`/doctors/patient-summary/${patientId}`, { timeout: 90000 });
+};
+
+export const getAllHospitals = () => {
+  return api.get(`/all-hospitals`);
+};
+
+export const HospitalSearch = (searchTerm) => {
+  return api.get(`/search-hospitals`, {
+    params: {
+      search: searchTerm,
+    },
+  });
+};
+
+
+export const createReferral = (referralData) => {
+  return api.post("/referral/create", referralData);
+};
+
+export const getSharedMedicalData = async (patientId) => {
+  return api.get(`/doctors/patient-history/${patientId}`);
+};
+
+export const getRequestedEmergencies = () => {
+  return api.get("/emergency/requested");
+};
+
+export const updateEmergencyStatus = (emergencyId, status, ambulance) => {
+  return api.patch(`/emergency/${emergencyId}/status`, {
+    status,
+    ...(ambulance && { ambulance }),
   });
 };
